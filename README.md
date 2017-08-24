@@ -1,7 +1,21 @@
-ml_topic_analysis
+Case study for Collective Intelligence Assembly for Innovation Policy blog
 ==============================
 
-Analysis of ML projects in Arxiv for an analysis of algorithmic decision-making
+Code for data collection, analysis and visualisation of data about R&D in AI.
+
+Project activities
+-------------
+
+1. Collect data from Arxiv API using research categories + relevant search strings (e.g. machine+learning, artificial+intelligence etc)
+2. Analyse historical activity vs baseline
+3. Topic modelling / analysis of trends
+4. Identify and analyse policy-related issues manually or through some other method
+5. Obtain researcher affiliations (e.g via Microsoft Academic Knowledge API)
+6. Geocode researcher affiliations (e.g. via Open Street Map API)
+7. Map geography of AI research and its evolution (including vignettes on policy-relevant issues)
+8. Map networks and their evolution (including vignettes on policy relevant issues)
+
+
 
 Project Organization
 ------------
