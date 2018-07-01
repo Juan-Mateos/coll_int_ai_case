@@ -120,3 +120,118 @@ class dlPaperClassification():
         
         #topics_agg stores the aggregated topics (mostly for checking)
         self.topics_agg = topic_aggregated       
+        
+        
+#Arxiv diversity. NB this is supercrude, just using a herfindahl index.
+arxiv_cat_totals = pd.pivot_table(mv_data_pre.groupby(['region','arxiv_first_cat']).size().reset_index(drop=False),
+                              index='region',columns='arxiv_first_cat',values=0).fillna(0)
+
+#We do it for all disciplines
+arxiv_all_divers = arxiv_cat_totals.apply(lambda x: calculate_herfindahl(x),axis=1)
+arxiv_all_divers.name = 'arxiv_all_div'
+
+#And for CS disciplines
+arxiv_cs_divers = arxiv_cat_totals[[x for x in arxiv_cat_totals.columns if x[:2]=='cs']].apply(
+    lambda x: calculate_herfindahl(x),axis=1)
+arxiv_cs_divers.name = 'arxiv_cs_div'
+
+fig,ax = plt.subplots()
+
+ax.scatter(arxiv_all_divers,arxiv_cs_divers,alpha=0.75)
+ax.set_title('Diversity in CS vs Diversity in all disciplines')
+ax.set_ylabel('Diversity in CS')
+ax.set_xlabel('Diversity in all disciplines')
+
+ def spec_volatility(self,ax,unit='country',high_cited=False,top_ranking=20,year_threshold=2012,
+                       #[high_dl,low_dl]
+                       ):
+        '''
+        This compares the volatility of changes in specialisation for DL, high DL sectors and low DL sectors before and after 2012.
+        
+        
+        '''
+        
+        
+        #Load papers
+        papers = self.papers
+        
+        #This is a repetition of what we did before.
+        #Add variable for subsetting
+        papers['threshold_year'] = ['pre_'+str(year_threshold) if y<year_threshold else 'post_'+str(year_threshold) for
+                                   y in papers['year']]
+        
+        #Locations
+        locations = papers[unit].value_counts()[:top_ranking].index
+        
+        
+        #If we are working with highly cited papers
+        #Split into two years, apply the get_cited_papers and combine
+        if high_cited != False:
+            papers =papers.groupby('threshold_year').apply(lambda x: get_cited_papers(
+                x,'citations',high_cited)).reset_index(drop=True)
+        
+        
+        #Create the lq
+        #Now we calculate the LQs for both years.
+        lqs = papers.groupby(
+            'threshold_year').apply(lambda x: create_lq_df(pd.crosstab(x[unit],x['is_dl']))).reset_index(drop=False)
+        
+        
+        #This creates the table for plotting
+        specs_wide = pd.pivot_table(lqs,
+               index=unit,columns='threshold_year',values='dl').loc[locations]
+        
+        #This gives the change in specialisation for the top years.
+        specs_change = specs_wide['post_'+str(year_threshold)]-specs_wide['pre_'+str(year_threshold)]
+        
+        #We store the country totals here
+        spec_store =[]
+        
+        #And now to work with the arxiv categories
+        for cat in self.categories:
+            
+            t0 = papers.loc[(papers.year<year_threshold) & ([cat in x for x in papers['arxiv_categories']])]
+            t1 = papers.loc[(papers.year>year_threshold) & ([cat in x for x in papers['arxiv_categories']])]
+            
+            #Total number of papers by country and category
+            t0_loc,t1_loc = t0[unit].value_counts(), t1[unit].value_counts()
+            t0_loc.name = cat
+            t1_loc.name = cat
+            
+            
+            
+            #Store the information
+            spec_store.append([t0_loc,t1_loc])
+            
+        
+        #Now we create the LQs in each category
+        #out = pd.concat([pd.melt(create_lq_df(pd.concat([x[num] for x in spec_store])).fillna(0).reset_index(drop=False),
+        #                 index='index') for num in [0,1]],axis=1)
+        
+        return(spec_store)
+            
+        #Concatenate
+        
+        
+
+    def get_spec_volatility(df,threshold_var='threshold_year',activity_var='is_dl'):
+    '''
+    This returns changes in specialisation for a df
+    
+    '''
+    
+    #Create the lq
+        #Now we calculate the LQs for both years.
+    lqs = papers.groupby(
+        'threshold_year').apply(lambda x: create_lq_df(pd.crosstab(x[unit],x['is_dl']))).reset_index(drop=False)
+        
+        
+    #This creates a table with the LQs
+    specs_wide = pd.pivot_table(lqs,
+                                index=unit,columns='threshold_year',values='dl')[locations]
+        
+    #This gives the change of specialisation for the top years.
+    specs_change = specs_wide['post_'+str(year_threshold)]-specs_wide['pre_'+str(year_threshold)]
+        
+    
+    
