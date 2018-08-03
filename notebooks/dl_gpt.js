@@ -57,31 +57,60 @@
     "#Imports\n",
     "#Key imports are loaded from my profile (see standard_imports.py in src folder).\n",
     "\n",
-    "#Paths\n",
+    "#Paths"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 304,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# %load standard_imports.py\n",
+    "import os\n",
+    "import sys\n",
+    "\n",
+    "import pickle\n",
+    "import zipfile\n",
+    "import re\n",
+    "import datetime\n",
+    "\n",
+    "import urllib3\n",
+    "import http.client, urllib.request, urllib.parse, urllib.error, base64\n",
+    "import requests\n",
+    "import json\n",
+    "\n",
+    "\n",
+    "import pandas as pd\n",
+    "import numpy as np\n",
+    "import matplotlib.pyplot as plt\n",
+    "from itertools import combinations\n",
+    "\n",
+    "#Analytical\n",
+    "import networkx as nx\n",
+    "import community\n",
+    "\n",
+    "#Other\n",
+    "import ratelim\n",
+    "from bs4 import BeautifulSoup\n",
+    "\n",
     "\n",
     "#Paths\n",
     "top = os.path.dirname(os.getcwd())\n",
     "\n",
-    "#External data (to download the GRID database)\n",
+    "#External data\n",
     "ext_data = os.path.join(top,'data/external')\n",
     "\n",
     "#Interim data (to place seed etc)\n",
     "int_data = os.path.join(top,'data/interim')\n",
     "\n",
-    "#Proc data (to place seed etc)\n",
-    "proc_data = os.path.join(top,'data/processed')\n",
-    "\n",
     "#Figures\n",
     "fig_path = os.path.join(top,'reports/figures')\n",
-    "\n",
-    "#Models\n",
-    "mod_path = os.path.join(top,'models')\n",
-    "\n",
     "\n",
     "#Get date for saving files\n",
     "today = datetime.datetime.today()\n",
     "\n",
-    "today_str = \"_\".join([str(x) for x in [today.day,today.month,today.year]])\n"
+    "today_str = \"_\".join([str(x) for x in [today.day,today.month,today.year]])"
    ]
   },
   {
@@ -146,20 +175,9 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 3,
+   "execution_count": null,
    "metadata": {},
-   "outputs": [
-    {
-     "data": {
-      "text/plain": [
-       "(247931, 60)"
-      ]
-     },
-     "execution_count": 3,
-     "metadata": {},
-     "output_type": "execute_result"
-    }
-   ],
+   "outputs": [],
    "source": [
     "# Load the papers\n",
     "\n",
@@ -202,23 +220,6 @@
    "source": [
     "#Note that there are many duplicated papers. This seems to be linked to the way they have been geocoded\n",
     "len(set(papers.arxiv_id))"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 5,
-   "metadata": {},
-   "outputs": [],
-   "source": [
-    "#The only difference between papers I can find is in the latitude and longitude. \n",
-    "#TODO: Check with Joel what's going on here.\n",
-    "\n",
-    "#for column in papers.columns:\n",
-    "#    print(column)\n",
-    "#    print(papers.loc[0,column])\n",
-    "#    print(papers.loc[1,column])\n",
-    "#    \n",
-    "#    print('\\n')   "
    ]
   },
   {
@@ -526,49 +527,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "We have a big bunch of columns with topics (`TOPIC_...`) and metadata from arxiv\n",
-    "\n",
-    "Let's check waht the latter are"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 7,
-   "metadata": {},
-   "outputs": [
-    {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
-      "arxiv_categories\n",
-      "arxiv_created\n",
-      "arxiv_id\n",
-      "arxiv_raw_summary\n",
-      "arxiv_raw_title\n",
-      "arxiv_sources\n",
-      "arxiv_summary\n",
-      "arxiv_title\n",
-      "citations\n",
-      "date\n",
-      "doi\n",
-      "full_title\n",
-      "grid_lat\n",
-      "grid_lon\n",
-      "institutes\n",
-      "journal\n",
-      "language\n",
-      "match_score\n",
-      "match_value\n",
-      "matched\n",
-      "title\n"
-     ]
-    }
-   ],
-   "source": [
-    "#Check the col\n",
-    "for column in papers.columns:\n",
-    "    if 'TOPIC' not in column:\n",
-    "        print(column)"
+    "We have a big bunch of columns with topics (`TOPIC_...`) and metadata from arxiv"
    ]
   },
   {
@@ -2195,26 +2154,6 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 26,
-   "metadata": {},
-   "outputs": [
-    {
-     "data": {
-      "text/plain": [
-       "25.0"
-      ]
-     },
-     "execution_count": 26,
-     "metadata": {},
-     "output_type": "execute_result"
-    }
-   ],
-   "source": [
-    "papers_meta.citations.quantile(0.9)"
-   ]
-  },
-  {
-   "cell_type": "code",
    "execution_count": 27,
    "metadata": {},
    "outputs": [],
@@ -2747,9 +2686,7 @@
     "\n",
     "ax.set_ylabel('Citation competitiveness index \\n $CC_i$')\n",
     "ax.set_title('')\n",
-    "plt.tight_layout()\n",
-    "\n",
-    "plt.savefig(fig_path+'/paper_figures/figure_3_impact.pdf')\n"
+    "plt.tight_layout()"
    ]
   },
   {
@@ -6398,7 +6335,7 @@
    "name": "python",
    "nbconvert_exporter": "python",
    "pygments_lexer": "ipython3",
-   "version": "3.5.2"
+   "version": "3.7.0"
   }
  },
  "nbformat": 4,

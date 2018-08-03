@@ -235,3 +235,43 @@ ax.set_xlabel('Diversity in all disciplines')
         
     
     
+    ### Crude analysis of the situation in China
+
+country_collabs = papers_clust.groupby('arxiv_id')['country'].apply(lambda x: list(x)).reset_index(drop=False)
+
+country_collabs['china_us'] = [('China' in x) & ('United States of America' in x) for x in country_collabs['country']]
+
+country_collabs['is_dl'] = [x in papers_expansive for x in country_collabs['arxiv_id']]
+
+country_collabs['year'] = [papers_meta.loc[x,'year'] for x in country_collabs['arxiv_id']]
+
+dl_ct = pd.crosstab(country_collabs['china_us'],country_collabs['is_dl'],margins=1)
+
+china_us_shares = dl_ct[True]/dl_ct['All']
+
+fig,ax = plt.subplots()
+
+(100*china_us_shares[[True,'All']]).plot.bar(color='steelblue',title='Share of DL papers is bigger among US-China collaborations \n than in the wider corpus of arXiv papers',ax=ax)
+ax.set_xlabel('')
+ax.set_ylabel('DL percentage in category')
+ax.set_xticklabels(['Chinese-US collaborations','All arXiv CS papers'],rotation=45,ha='right')
+
+plt.tight_layout()
+
+plt.savefig('/Users/jmateosgarcia/Desktop/china_collabs.png')
+
+
+dl_papers_recent = country_collabs.loc[(country_collabs['year']>2010) & (country_collabs['is_dl']==True),:]
+
+fig,ax = plt.subplots()
+pd.crosstab(dl_papers_recent['year'],dl_papers_recent['china_us'],normalize=0).iloc[:,[1,0]].plot.bar(
+    stacked=True,ax=ax,
+    colors=['orange','steelblue'],title='Chinese-USA collaborations are \n gaining importance over time')
+
+ax.legend(bbox_to_anchor=(1,1),title='China-US collaborations')
+plt.tight_layout()
+
+plt.savefig('/Users/jmateosgarcia/Desktop/china_collabs_time.png')
+
+
+len(papers_meta)
